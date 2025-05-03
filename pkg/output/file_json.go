@@ -19,6 +19,7 @@ type JsonResult struct {
 	Input            map[string]string   `json:"input"`
 	Position         int                 `json:"position"`
 	StatusCode       int64               `json:"status"`
+	Title            string              `json:"title"`
 	ContentLength    int64               `json:"length"`
 	ContentWords     int64               `json:"words"`
 	ContentLines     int64               `json:"lines"`
@@ -69,6 +70,7 @@ func writeJSON(filename string, config *ffuf.Config, res []ffuf.Result) error {
 			Input:            strinput,
 			Position:         r.Position,
 			StatusCode:       r.StatusCode,
+			Title:            r.Title,
 			ContentLength:    r.ContentLength,
 			ContentWords:     r.ContentWords,
 			ContentLines:     r.ContentLines,

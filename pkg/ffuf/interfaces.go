@@ -102,6 +102,7 @@ type Result struct {
 	Input            map[string][]byte   `json:"input"`
 	Position         int                 `json:"position"`
 	StatusCode       int64               `json:"status"`
+	Title            string              `json:"title"`
 	ContentLength    int64               `json:"length"`
 	ContentWords     int64               `json:"words"`
 	ContentLines     int64               `json:"lines"`

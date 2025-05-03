@@ -1,14 +1,21 @@
 package ffuf
 
 import (
+	"bufio"
+	"fmt"
+	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
+
+	"golang.org/x/net/html"
 )
 
 // Response struct holds the meaningful data returned from request and is meant for passing to filters
 type Response struct {
 	StatusCode    int64
+	Title         string
 	Headers       map[string][]string
 	Data          []byte
 	ContentLength int64
@@ -79,7 +86,43 @@ func getUrlPort(url *url.URL) string {
 	return p
 }
 
+func extractTitle(r io.Reader) (string, error) {
+	z := html.NewTokenizer(bufio.NewReader(r))
+	var inTitle bool
+	var sb strings.Builder
+
+	for {
+		tt := z.Next()
+		switch tt {
+		case html.ErrorToken:
+			if z.Err() == io.EOF {
+				return "", nil
+			}
+			return "", z.Err()
+
+		case html.StartTagToken:
+			t := z.Token()
+			if strings.EqualFold(t.Data, "title") {
+				inTitle = true
+			}
+
+		case html.TextToken:
+			if inTitle {
+				sb.WriteString(z.Token().Data)
+			}
+
+		case html.EndTagToken:
+			t := z.Token()
+			if inTitle && strings.EqualFold(t.Data, "title") {
+				return strings.TrimSpace(sb.String()), nil
+			}
+		}
+	}
+}
+
 func NewResponse(httpresp *http.Response, req *Request) Response {
+	defer httpresp.Body.Close()
+
 	var resp Response
 	resp.Request = req
 	resp.StatusCode = int64(httpresp.StatusCode)
@@ -89,5 +132,11 @@ func NewResponse(httpresp *http.Response, req *Request) Response {
 	resp.Raw = ""
 	resp.ResultFile = ""
 	resp.ScraperData = make(map[string][]string)
+
+	title, _ := extractTitle(httpresp.Body)
+
+	fmt.Println(title, "AAAA")
+	resp.Title = title
+
 	return resp
 }

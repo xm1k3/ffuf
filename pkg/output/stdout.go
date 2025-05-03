@@ -327,6 +327,7 @@ func (s *Stdoutput) Result(resp ffuf.Response) {
 		Input:            inputs,
 		Position:         resp.Request.Position,
 		StatusCode:       resp.StatusCode,
+		Title:            resp.Title,
 		ContentLength:    resp.ContentLength,
 		ContentWords:     resp.ContentWords,
 		ContentLines:     resp.ContentLines,
